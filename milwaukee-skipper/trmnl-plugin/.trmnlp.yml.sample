@@ -1,0 +1,14 @@
+# TRMNL Plugin Development Configuration
+# Copy this to .trmnlp.yml and customize
+
+env:
+  API_URL: "https://milwaukee-skipper-weathered-morning-2608.fly.dev/api/mke/current"
+
+data:
+  mode: http
+  url: "{{ env.API_URL }}"
+
+# For local testing, you can use mock data:
+# data:
+#   mode: file
+#   path: "./sample_data.json"

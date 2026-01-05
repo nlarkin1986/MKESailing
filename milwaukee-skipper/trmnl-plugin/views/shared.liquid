@@ -1,0 +1,36 @@
+{% comment %}
+  Captain Curt's Milwaukee Skipper - Shared Templates
+  Inline SVG icons and reusable components
+{% endcomment %}
+
+{% comment %} === COMPASS ICON FOR TITLE BAR (inline SVG) === {% endcomment %}
+{%- capture compass_icon -%}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor"/></svg>
+{%- endcapture -%}
+
+{% comment %} === WIND DIRECTION ARROWS === {% endcomment %}
+{% assign arrows = "↓,↙,←,↖,↑,↗,→,↘" | split: "," %}
+
+{% comment %} === BEAUFORT SCALE HELPER === {% endcomment %}
+{% comment %}
+  Usage: {% assign bf = wind_kt | times: 1 %}
+  Then use conditionals to get Beaufort number
+{% endcomment %}
+
+{% comment %} === WAVE SYMBOLS === {% endcomment %}
+{% comment %}
+  < 1ft: ~
+  1-2ft: ~~
+  2-3ft: ≈≈
+  3-4ft: ∿∿
+  4+ft: ⌇⌇
+{% endcomment %}
+
+{% comment %} === CAPTAIN'S MESSAGES === {% endcomment %}
+{% comment %}
+  Messages based on sailability.level and time of day
+  - great: "Fair winds, Capt. Curt!"
+  - calm: "Light air today, Captain."
+  - sporty: "Lively out there, Curt!"
+  - rough: "Careful, Captain Curt."
+{% endcomment %}

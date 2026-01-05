@@ -1,0 +1,148 @@
+{% comment %} 
+  Captain Curt's Milwaukee Skipper - 3x2 Grid Dashboard
+{% endcomment %}
+
+{% assign dock = observations.dock %}
+{% assign fc = forecast %}
+{% assign sail = sailability %}
+
+{% comment %} === CURT INDEX LEVELS + WAVE ICONS === {% endcomment %}
+{% case sail.level %}
+  {% when 'calm' %}
+    {% assign curt_icon = "———" %}
+    {% assign curt_index = "CALM" %}
+  {% when 'great' %}
+    {% assign curt_icon = "～～～" %}
+    {% assign curt_index = "ACE TITS" %}
+  {% when 'sporty' %}
+    {% assign curt_icon = "∿∿∿" %}
+    {% assign curt_index = "SPORTY" %}
+  {% when 'rough' %}
+    {% assign curt_icon = "≋≋≋" %}
+    {% assign curt_index = "ROUGH" %}
+  {% else %}
+    {% assign curt_icon = "???" %}
+    {% assign curt_index = "CHECK" %}
+{% endcase %}
+
+{% comment %} === TIME OF DAY === {% endcomment %}
+{% assign hour = updated_at | date: "%H" | plus: 0 %}
+{% if hour >= 5 and hour < 12 %}
+  {% assign tod = "morning" %}
+  {% assign footer_msg = "Good morning, Captain Curt" %}
+{% elsif hour >= 12 and hour < 17 %}
+  {% assign tod = "afternoon" %}
+  {% assign footer_msg = "Good afternoon, Captain Curt" %}
+{% elsif hour >= 17 and hour < 21 %}
+  {% assign tod = "evening" %}
+  {% assign footer_msg = "Good evening, Captain Curt" %}
+{% else %}
+  {% assign tod = "night" %}
+  {% assign footer_msg = "Clear skies, Captain Curt" %}
+{% endif %}
+
+{% comment %} === CAPTAIN'S MESSAGE (condition-based) === {% endcomment %}
+{% case sail.level %}
+  {% when 'great' %}
+    {% if tod == "morning" %}{% assign captain_msg = "Ace Tits out there, Curt!" %}
+    {% elsif tod == "afternoon" %}{% assign captain_msg = "It's Ace Tits, Captain!" %}
+    {% elsif tod == "evening" %}{% assign captain_msg = "Ace Tits this evening!" %}
+    {% else %}{% assign captain_msg = "Ace Tits tonight!" %}{% endif %}
+  {% when 'calm' %}{% assign captain_msg = "Light air today, Captain." %}
+  {% when 'sporty' %}{% assign captain_msg = "Reef early if needed!" %}
+  {% when 'rough' %}{% assign captain_msg = "Heavy weather, Curt." %}
+  {% else %}{% assign captain_msg = "Check conditions." %}
+{% endcase %}
+
+{% comment %} === WIND ARROWS === {% endcomment %}
+{% assign arrows = "↓,↙,←,↖,↑,↗,→,↘" | split: "," %}
+{% assign dock_dir = dock.wind_dir_deg | default: 0 %}
+{% assign dock_idx = dock_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
+{% assign dock_arrow = arrows[dock_idx] %}
+{% assign lake_dir = fc.hours[0].wind_dir_deg | default: 0 %}
+{% assign lake_idx = lake_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
+{% assign lake_arrow = arrows[lake_idx] %}
+
+{% comment %} === WAVE TREND === {% endcomment %}
+{% assign wave_now = fc.hours[0].wave_height_ft | default: 0 %}
+{% assign wave_end = fc.hours[5].wave_height_ft | default: 0 %}
+{% if wave_end > wave_now %}{% assign wave_trend = "Building" %}
+{% elsif wave_end < wave_now %}{% assign wave_trend = "Subsiding" %}
+{% else %}{% assign wave_trend = "Steady" %}{% endif %}
+
+<div class="view view--full">
+  <div class="layout layout--col gap--large">
+    
+    {% comment %} ========== TOP ROW: 3 COLUMNS ========== {% endcomment %}
+    <div class="grid grid--cols-3 gap--medium">
+      
+      {% comment %} COL 1: CURT INDEX + WAVE ICON {% endcomment %}
+      <div class="flex flex--col flex--center p--4 gap--small">
+        <span class="title title--small">CURT INDEX</span>
+        <span class="value value--large" style="white-space: nowrap;">{{ curt_icon }}</span>
+        <span class="label">{{ curt_index }}</span>
+        <span class="description description--small" style="font-style: italic;">"{{ captain_msg }}"</span>
+      </div>
+      
+      {% comment %} COL 2: DOCK WIND {% endcomment %}
+      <div class="flex flex--col flex--center p--4">
+        <span class="title title--small">DOCK</span>
+        <span class="value value--xlarge value--tnums">{% if dock.wind_speed_kt %}{{ dock.wind_speed_kt | round }}{% else %}--{% endif %}</span>
+        <span class="label">kt {{ dock_arrow }}{{ dock.wind_dir_cardinal | default: "" }}</span>
+      </div>
+      
+      {% comment %} COL 3: LAKE WIND {% endcomment %}
+      <div class="flex flex--col flex--center p--4">
+        <span class="title title--small">LAKE</span>
+        <span class="value value--xlarge value--tnums">{% if fc.hours[0].wind_speed_kt %}{{ fc.hours[0].wind_speed_kt | round }}{% else %}--{% endif %}</span>
+        <span class="label">kt {{ lake_arrow }}{{ fc.hours[0].wind_dir_cardinal | default: "" }}</span>
+      </div>
+      
+    </div>
+
+    <div class="divider"></div>
+
+    {% comment %} ========== BOTTOM ROW: 3 COLUMNS ========== {% endcomment %}
+    <div class="grid grid--cols-3 gap--medium">
+      
+      {% comment %} COL 1: CONDITIONS - Stacked vertically {% endcomment %}
+      <div class="flex flex--col gap--small">
+        <span class="title title--small">CONDITIONS</span>
+        <div class="flex flex--col gap--small">
+          <div class="flex flex--row flex--align-center gap--small">
+            <span class="value value--tnums">{% if dock.air_temp_f %}{{ dock.air_temp_f | round }}°{% else %}--{% endif %}</span>
+            <span class="label">Air</span>
+          </div>
+          <div class="flex flex--row flex--align-center gap--small">
+            <span class="value value--tnums">{% if dock.wind_gust_kt %}{{ dock.wind_gust_kt | round }}kt{% else %}--{% endif %}</span>
+            <span class="label">Gust</span>
+          </div>
+        </div>
+      </div>
+      
+      {% comment %} COL 2: WAVES {% endcomment %}
+      <div class="flex flex--col flex--center gap--small">
+        <span class="title title--small">WAVES</span>
+        <span class="value value--tnums">{{ wave_now | round: 1 }}→{{ wave_end | round: 1 }}ft</span>
+        <span class="label">{{ wave_trend }}</span>
+      </div>
+      
+      {% comment %} COL 3: FORECAST {% endcomment %}
+      <div class="flex flex--col gap--small">
+        <span class="title title--small">FORECAST</span>
+        {% if fc.summary %}
+          <span class="description description--xsmall clamp--4">{{ fc.summary }}</span>
+        {% else %}
+          <span class="description description--small">No forecast available</span>
+        {% endif %}
+      </div>
+      
+    </div>
+
+  </div>
+
+  <div class="title_bar">
+    <span class="title">⚓ {{ footer_msg }}</span>
+    <span class="instance">{{ updated_at | date: "%-I:%M %p" }}</span>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+{% comment %} 
+  Captain Curt's Milwaukee Skipper - Quadrant
+  Minimal wind-only view
+{% endcomment %}
+
+{% render 'shared' %}
+
+{% assign fc = forecast %}
+{% assign sail = sailability %}
+
+{% assign arrows = "↓,↙,←,↖,↑,↗,→,↘" | split: "," %}
+{% assign lake_dir = fc.hours[0].wind_dir_deg | default: 0 %}
+{% assign lake_idx = lake_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
+{% assign lake_arrow = arrows[lake_idx] %}
+
+{% assign lake_wind = fc.hours[0].wind_speed_kt | default: 0 %}
+
+<div class="view view--quadrant">
+  <div class="layout layout--col layout--center">
+    
+    <div class="item">
+      <div class="meta"></div>
+      <div class="content">
+        <span class="value value--xxxlarge value--tnums">{% if lake_wind > 0 %}{{ lake_wind | round }}{% else %}--{% endif %}</span>
+        <span class="label">kt {{ lake_arrow }} {{ fc.hours[0].wind_dir_cardinal | default: "" }}</span>
+      </div>
+    </div>
+    
+    <span class="label mt--4">{{ sail.level | upcase }}</span>
+
+  </div>
+
+  <div class="title_bar">
+    <span class="title">Lake Michigan</span>
+  </div>
+</div>

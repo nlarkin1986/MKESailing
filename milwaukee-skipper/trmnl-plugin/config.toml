@@ -1,0 +1,8 @@
+# Captain Curt's Milwaukee Skipper - TRMNL Plugin Config
+strategy = "polling"
+url = "https://milwaukee-skipper-weathered-morning-2608.fly.dev/api/mke/current"
+live_render = true
+
+[polling_headers]
+accept = "application/json"
+user-agent = "CaptainCurt-TRMNL/1.0"

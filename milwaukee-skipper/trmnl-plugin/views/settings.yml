@@ -1,0 +1,23 @@
+name: Captain Curt's Milwaukee Skipper
+description: >
+  Personalized sailing conditions for Lake Michigan at Milwaukee. 
+  Real-time wind, waves, and weather with Captain-friendly messaging.
+  Data from NOAA NDBC buoys and Open-Meteo marine forecasts.
+icon: compass
+author: Milwaukee Skipper
+version: 1.0.0
+
+strategy: polling
+
+polling:
+  url: "https://milwaukee-skipper-weathered-morning-2608.fly.dev/api/mke/current"
+  verb: GET
+  interval_minutes: 10
+  headers:
+    - key: "User-Agent"
+      value: "CaptainCurt-TRMNL/1.0"
+    - key: "Accept"
+      value: "application/json"
+
+# No custom fields needed - all data comes from the API
+formFields: []

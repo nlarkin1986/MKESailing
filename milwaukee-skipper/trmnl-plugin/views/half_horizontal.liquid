@@ -1,0 +1,73 @@
+{% comment %} 
+  Captain Curt's Milwaukee Skipper - Half Horizontal
+  Compact version for mashups
+{% endcomment %}
+
+{% render 'shared' %}
+
+{% assign dock = observations.dock %}
+{% assign fc = forecast %}
+{% assign sail = sailability %}
+
+{% comment %} === CAPTAIN'S MESSAGE (short) === {% endcomment %}
+{% case sail.level %}
+  {% when 'great' %}{% assign captain_msg = "Fair winds, Capt. Curt!" %}
+  {% when 'calm' %}{% assign captain_msg = "Light air today, Captain." %}
+  {% when 'sporty' %}{% assign captain_msg = "Lively out there, Curt!" %}
+  {% when 'rough' %}{% assign captain_msg = "Careful, Captain Curt." %}
+  {% else %}{% assign captain_msg = "Check conditions, Captain." %}
+{% endcase %}
+
+{% assign arrows = "↓,↙,←,↖,↑,↗,→,↘" | split: "," %}
+{% assign dock_dir = dock.wind_dir_deg | default: 0 %}
+{% assign dock_idx = dock_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
+{% assign dock_arrow = arrows[dock_idx] %}
+{% assign lake_dir = fc.hours[0].wind_dir_deg | default: 0 %}
+{% assign lake_idx = lake_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
+{% assign lake_arrow = arrows[lake_idx] %}
+
+<div class="view view--half_horizontal">
+  <div class="layout layout--col gap--medium">
+    
+    {% comment %} === CAPTAIN'S BRIEFING (compact) === {% endcomment %}
+    <div class="item">
+      <div class="meta"></div>
+      <div class="content">
+        <span class="description" style="font-style: italic;">"{{ captain_msg }}"</span>
+        <span class="label">{{ sail.level | upcase }}</span>
+      </div>
+    </div>
+
+    {% comment %} === DUAL STATION (side by side) === {% endcomment %}
+    <div class="columns">
+      <div class="column">
+        <div class="item">
+          <div class="meta"></div>
+          <div class="content">
+            <span class="label">DOCK</span>
+            <span class="value value--large value--tnums">{% if dock.wind_speed_kt %}{{ dock.wind_speed_kt | round }}{% else %}--{% endif %}kt {{ dock_arrow }}</span>
+            <span class="description">Air: {% if dock.air_temp_f %}{{ dock.air_temp_f | round }}°{% else %}--{% endif %}</span>
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="item">
+          <div class="meta"></div>
+          <div class="content">
+            <span class="label">LAKE</span>
+            <span class="value value--large value--tnums">{% if fc.hours[0].wind_speed_kt %}{{ fc.hours[0].wind_speed_kt | round }}{% else %}--{% endif %}kt {{ lake_arrow }}</span>
+            {% assign wave_h = fc.hours[0].wave_height_ft | default: 0 %}
+            <span class="description">Waves: {% if wave_h > 0 %}{{ wave_h | round: 1 }}ft{% else %}--{% endif %}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="title_bar">
+    <img class="image" src="https://usetrmnl.com/images/plugins/trmnl--render.svg" />
+    <span class="title">Capt. Curt's Skipper</span>
+    <span class="instance">{{ updated_at | date: "%-I:%M%p" }}</span>
+  </div>
+</div>
