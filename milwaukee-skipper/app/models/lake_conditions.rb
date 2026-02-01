@@ -19,7 +19,7 @@ class LakeConditions
       observations: obs,
       forecast: forecast,
       sailability: calculate_sailability(obs, forecast),
-      updated_at: Time.current.in_time_zone("America/Chicago").strftime("%Y-%m-%dT%H:%M:%S")
+      updated_at: Time.current.in_time_zone("America/Chicago").iso8601
     }
   end
 

@@ -8,12 +8,17 @@
 {% assign fc = forecast %}
 {% assign sail = sailability %}
 
+{% assign fc_now = fc.hours[0] %}
 {% assign arrows = "↓,↙,←,↖,↑,↗,→,↘" | split: "," %}
-{% assign lake_dir = fc.hours[0].wind_dir_deg | default: 0 %}
-{% assign lake_idx = lake_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
-{% assign lake_arrow = arrows[lake_idx] %}
-
-{% assign lake_wind = fc.hours[0].wind_speed_kt | default: 0 %}
+{% if fc_now %}
+  {% assign lake_dir = fc_now.wind_dir_deg | default: 0 %}
+  {% assign lake_idx = lake_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
+  {% assign lake_arrow = arrows[lake_idx] %}
+  {% assign lake_wind = fc_now.wind_speed_kt | default: 0 %}
+{% else %}
+  {% assign lake_arrow = "" %}
+  {% assign lake_wind = 0 %}
+{% endif %}
 
 <div class="view view--quadrant">
   <div class="layout layout--col layout--center">
@@ -22,7 +27,7 @@
       <div class="meta"></div>
       <div class="content">
         <span class="value value--xxxlarge value--tnums">{% if lake_wind > 0 %}{{ lake_wind | round }}{% else %}--{% endif %}</span>
-        <span class="label">kt {{ lake_arrow }} {{ fc.hours[0].wind_dir_cardinal | default: "" }}</span>
+        <span class="label">kt {{ lake_arrow }} {% if fc_now %}{{ fc_now.wind_dir_cardinal | default: "" }}{% endif %}</span>
       </div>
     </div>
     

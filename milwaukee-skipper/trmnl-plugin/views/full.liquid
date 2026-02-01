@@ -54,18 +54,34 @@
   {% else %}{% assign captain_msg = "Check conditions." %}
 {% endcase %}
 
+{% comment %} === CURRENT HOUR DATA === {% endcomment %}
+{% assign fc_now = fc.hours[0] %}
+{% assign fc_end = fc.hours[5] %}
+
 {% comment %} === WIND ARROWS === {% endcomment %}
 {% assign arrows = "↓,↙,←,↖,↑,↗,→,↘" | split: "," %}
 {% assign dock_dir = dock.wind_dir_deg | default: 0 %}
 {% assign dock_idx = dock_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
 {% assign dock_arrow = arrows[dock_idx] %}
-{% assign lake_dir = fc.hours[0].wind_dir_deg | default: 0 %}
-{% assign lake_idx = lake_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
-{% assign lake_arrow = arrows[lake_idx] %}
+{% if fc_now %}
+  {% assign lake_dir = fc_now.wind_dir_deg | default: 0 %}
+  {% assign lake_idx = lake_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
+  {% assign lake_arrow = arrows[lake_idx] %}
+{% else %}
+  {% assign lake_arrow = "" %}
+{% endif %}
 
 {% comment %} === WAVE TREND === {% endcomment %}
-{% assign wave_now = fc.hours[0].wave_height_ft | default: 0 %}
-{% assign wave_end = fc.hours[5].wave_height_ft | default: 0 %}
+{% if fc_now %}
+  {% assign wave_now = fc_now.wave_height_ft | default: 0 %}
+{% else %}
+  {% assign wave_now = 0 %}
+{% endif %}
+{% if fc_end %}
+  {% assign wave_end = fc_end.wave_height_ft | default: 0 %}
+{% else %}
+  {% assign wave_end = 0 %}
+{% endif %}
 {% if wave_end > wave_now %}{% assign wave_trend = "Building" %}
 {% elsif wave_end < wave_now %}{% assign wave_trend = "Subsiding" %}
 {% else %}{% assign wave_trend = "Steady" %}{% endif %}
@@ -94,8 +110,8 @@
       {% comment %} COL 3: LAKE WIND {% endcomment %}
       <div class="flex flex--col flex--center p--4">
         <span class="title title--small">LAKE</span>
-        <span class="value value--xlarge value--tnums">{% if fc.hours[0].wind_speed_kt %}{{ fc.hours[0].wind_speed_kt | round }}{% else %}--{% endif %}</span>
-        <span class="label">kt {{ lake_arrow }}{{ fc.hours[0].wind_dir_cardinal | default: "" }}</span>
+        <span class="value value--xlarge value--tnums">{% if fc_now and fc_now.wind_speed_kt %}{{ fc_now.wind_speed_kt | round }}{% else %}--{% endif %}</span>
+        <span class="label">kt {{ lake_arrow }}{% if fc_now %}{{ fc_now.wind_dir_cardinal | default: "" }}{% endif %}</span>
       </div>
       
     </div>

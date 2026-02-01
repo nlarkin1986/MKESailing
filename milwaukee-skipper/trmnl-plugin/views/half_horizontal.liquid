@@ -18,13 +18,18 @@
   {% else %}{% assign captain_msg = "Check conditions, Captain." %}
 {% endcase %}
 
+{% assign fc_now = fc.hours[0] %}
 {% assign arrows = "↓,↙,←,↖,↑,↗,→,↘" | split: "," %}
 {% assign dock_dir = dock.wind_dir_deg | default: 0 %}
 {% assign dock_idx = dock_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
 {% assign dock_arrow = arrows[dock_idx] %}
-{% assign lake_dir = fc.hours[0].wind_dir_deg | default: 0 %}
-{% assign lake_idx = lake_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
-{% assign lake_arrow = arrows[lake_idx] %}
+{% if fc_now %}
+  {% assign lake_dir = fc_now.wind_dir_deg | default: 0 %}
+  {% assign lake_idx = lake_dir | plus: 22.5 | divided_by: 45 | modulo: 8 | floor %}
+  {% assign lake_arrow = arrows[lake_idx] %}
+{% else %}
+  {% assign lake_arrow = "" %}
+{% endif %}
 
 <div class="view view--half_horizontal">
   <div class="layout layout--col gap--medium">
@@ -55,8 +60,8 @@
           <div class="meta"></div>
           <div class="content">
             <span class="label">LAKE</span>
-            <span class="value value--large value--tnums">{% if fc.hours[0].wind_speed_kt %}{{ fc.hours[0].wind_speed_kt | round }}{% else %}--{% endif %}kt {{ lake_arrow }}</span>
-            {% assign wave_h = fc.hours[0].wave_height_ft | default: 0 %}
+            <span class="value value--large value--tnums">{% if fc_now and fc_now.wind_speed_kt %}{{ fc_now.wind_speed_kt | round }}{% else %}--{% endif %}kt {{ lake_arrow }}</span>
+            {% assign wave_h = fc_now.wave_height_ft | default: 0 %}
             <span class="description">Waves: {% if wave_h > 0 %}{{ wave_h | round: 1 }}ft{% else %}--{% endif %}</span>
           </div>
         </div>
